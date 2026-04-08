@@ -1,35 +1,36 @@
-import {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
-} from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = "AIzaSyByc4VnkAXKlTYS4JLEwNwS1PS1aDduFGU";
+const apiKey = "AIzaSyDy4EhZwZTd_n5Vbfe85r9Zfy9YN0MOtVY"; // ⚠️ move to backend in real apps
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Get the model
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-2.0-flash", // ✅ FIXED
 });
 
-// Optional: config
 const generationConfig = {
-  temperature: 1,
+  temperature: 0.9,
   topP: 0.95,
   topK: 40,
-  maxOutputTokens: 8192,
-  responseMimeType: "text/plain",
+  maxOutputTokens: 2048,
 };
 
-// Function to send prompt and return result
 async function run(prompt) {
-  const chatSession = model.startChat({
-    generationConfig,
-    history: [],
-  });
+  try {
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig,
+    });
 
-  const result = await chatSession.sendMessage(prompt);
-  return result.response.text();
+    return result.response.text();
+  } catch (error) {
+    console.error("Gemini Error:", error);
+    return "Sorry, something went wrong.";
+  }
 }
 
 export default run;
